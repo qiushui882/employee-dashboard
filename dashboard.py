@@ -28,13 +28,14 @@ def main_menu():
     print("  [4] 年龄分析")
     print("  [5] 性别比例")
     print("  [0] 退出系统")
+    print("  [6] 入职年份")
     print("=" * 50)
     return input("  请选择功能：")
 
 #功能函数
 
 def dashboard(conn):
-    """[1] 总览仪表盘"""
+    """[1] 员工总览"""
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM emp")
     total = cursor.fetchone()[0]
@@ -113,6 +114,19 @@ def gender_analysis(conn):
         gender_label = '男' if row[0] == '男' else '女'
         pct = row[1] / total * 100
         print(f"  {gender_label}：{row[1]} 人 ({pct:.1f}%)")
+def entry_year_analysis(conn):
+    """[6] 入职年份统计"""
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT YEAR(entry_date) AS 入职年份, COUNT(*) AS 人数
+        FROM emp
+        GROUP BY 入职年份
+        ORDER BY 入职年份
+    """)
+    print("\n 入职年份统计：")
+    print("  " + "-" * 22)
+    for row in cursor:
+        print(f"  {row[0]} 年  {row[1]} 人")
 
 #入口
 if __name__ == "__main__":
@@ -131,6 +145,8 @@ if __name__ == "__main__":
             age_analysis(conn)
         elif choice == '5':
             gender_analysis(conn)
+        elif choice == '6':
+            entry_year_analysis(conn)
         elif choice == '0':
             print(" 再见！")
             break
